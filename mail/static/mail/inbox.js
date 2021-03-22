@@ -5,7 +5,7 @@ document.addEventListener('DOMContentLoaded', function() {
   document.querySelector('#sent').addEventListener('click', () => load_mailbox('sent'));
   document.querySelector('#archived').addEventListener('click', () => load_mailbox('archive'));
   document.querySelector('#compose').addEventListener('click', compose_email);
-  document.querySelector('#compose-form').onsubmit = () => {
+  document.querySelector('#compose-form').onsubmit = () => { 
     send_mail();
     return false;
   };
@@ -14,6 +14,8 @@ document.addEventListener('DOMContentLoaded', function() {
   // By default, load the inbox
   load_mailbox('inbox');
 });
+
+
 
 function compose_email() {
 
@@ -45,14 +47,14 @@ function load_mailbox(mailbox) {
 
       if (mailbox == 'sent') {
         email.innerHTML = 
-          `<div style="font-weight: bold; font-size:120%" class=>${element.recipients}</div>
-          <div style="text-align: left; font-size:110%">${element.subject}</div>
+          `<div style="font-weight: bold; font-size:120%";" onclick="display_email(${element.id})">${element.recipients}</div>
+          <div style="text-align: left; font-size:110%" onclick="display_email(${element.id})">${element.subject}</div>
           <div style="text-align: right;">${element.timestamp}</div>`;
       }
       else if (mailbox == 'archive') {
         email.innerHTML = 
-        `<div style="font-weight: bold; font-size:120%">${element.sender}</div>
-        <div style="text-align: left; font-size:110%">${element.subject}</div>
+        `<div style="font-weight: bold; font-size:120%" onclick="display_email(${element.id})">${element.sender}</div>
+        <div style="text-align: left; font-size:110%" onclick="display_email(${element.id})">${element.subject}</div>
         <div style="text-align: right;">${element.timestamp} 
         <button class="btn btn-sm btn-outline-primary" onclick="unarchiv_email(${element.id})">Unarchive</button>
         </div>`;
@@ -60,9 +62,9 @@ function load_mailbox(mailbox) {
       }
       else if (mailbox == 'inbox') {
         email.innerHTML = 
-        `<div style="font-weight: bold; font-size:120%";" class='linker'>${element.sender}</div>
-        <div style="text-align: left; font-size:110%";" class='linker'>${element.subject}</div>
-        <div style="text-align: right;" class='linker'>${element.timestamp}
+        `<div style="font-weight: bold; font-size:120%";" onclick="display_email(${element.id})">${element.sender}</div>
+        <div style="text-align: left; font-size:110%";" onclick="display_email(${element.id})">${element.subject}</div>
+        <div style="text-align: right;">${element.timestamp}
         <button class="btn btn-sm btn-outline-primary" onclick="archiv_email(${element.id})">Archive</button>
         </div>
         `;
@@ -76,9 +78,9 @@ function load_mailbox(mailbox) {
       
 
       // Listen for click in email
-      email.addEventListener('click', function() {
-        display_email(element);
-      });
+      //email.addEventListener('click', function() {
+      //  display_email(element);
+      //});
 
       // Make some CSS for each div
       email.style.borderColor = "black";
@@ -128,22 +130,14 @@ function send_mail() {
   load_mailbox('sent');
 }
 
-function display_email(email) {
-  console.log(email);
-  // Show email-body view and hide other views
-  document.querySelector('#emails-view').style.display = 'none';
-  document.querySelector('#compose-view').style.display = 'none';
-  document.querySelector('#email-body').style.display = 'block';
+function display_email(id) {
 
-  // Set this mail as readed
-  fetch(`/emails/${email.id}`, {
-    method: 'PUT',
-    body: JSON.stringify({
-        read: false
-    })
-  });
+  // Get the email
+  fetch(`/emails/${id}`)
+  .then(response => response.json())
+  .then(email => {
 
-  // Display content
+    // Display content
   const box = document.querySelector('#email-body');
   box.innerHTML = `
   <div id='sender'><strong>Sender:</strong> ${email.sender}</div>
@@ -152,27 +146,43 @@ function display_email(email) {
   <hr>
   <div id='body'>${email.body}</div>
   `;
+  });
+
+  // Show email-body view and hide other views
+  document.querySelector('#emails-view').style.display = 'none';
+  document.querySelector('#compose-view').style.display = 'none';
+  document.querySelector('#email-body').style.display = 'block';
+
+  // Set this mail as readed
+  fetch(`/emails/${id}`, {
+    method: 'PUT',
+    body: JSON.stringify({
+        read: false
+    })
+  });
 
 }
 
 
 function archiv_email(id) {
-
+// mark the mail as achived
 fetch(`/emails/${id}`, {
   method: 'PUT',
   body: JSON.stringify({
       archived: true
   })
   
-})
+});
+
 }
 
 function unarchiv_email(id) {
-
+// make the mail stop being archived
 fetch(`/emails/${id}`, {
   method: 'PUT',
   body: JSON.stringify({
       archived: false
   })
-})  
+});
+alert('dupa');
 }
