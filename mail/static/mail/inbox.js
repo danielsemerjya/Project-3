@@ -40,6 +40,8 @@ function load_mailbox(mailbox) {
     emails.forEach(function(element) {
       // Creat div for each email in mailbox
       const email = document.createElement('div');
+      const id = `email${element.id}`;
+      email.className = `email-div`;
       const box = document.createElement('div');
 
       box.innerHTML = '<button class="btn btn-sm btn-outline-primary" onclick="archiv_email(${element.id})">Archive</button>'
@@ -55,7 +57,7 @@ function load_mailbox(mailbox) {
         email.innerHTML = 
         `<div style="font-weight: bold; font-size:120%" onclick="display_email(${element.id})">${element.sender}</div>
         <div style="text-align: left; font-size:110%" onclick="display_email(${element.id})">${element.subject}</div>
-        <div style="text-align: right;">${element.timestamp} 
+        <div style="text-align: right;" id="${id}">${element.timestamp} 
         <button class="btn btn-sm btn-outline-primary" onclick="unarchiv_email(${element.id})">Unarchive</button>
         </div>`;
         
@@ -64,7 +66,7 @@ function load_mailbox(mailbox) {
         email.innerHTML = 
         `<div style="font-weight: bold; font-size:120%";" onclick="display_email(${element.id})">${element.sender}</div>
         <div style="text-align: left; font-size:110%";" onclick="display_email(${element.id})">${element.subject}</div>
-        <div style="text-align: right;">${element.timestamp}
+        <div style="text-align: right;" id="${id}">${element.timestamp}
         <button class="btn btn-sm btn-outline-primary" onclick="archiv_email(${element.id})">Archive</button>
         </div>
         `;
@@ -172,9 +174,9 @@ fetch(`/emails/${id}`, {
   body: JSON.stringify({
       archived: true
   })
-  
 });
-load_mailbox('inbox');
+const email = document.querySelector(`#email${id}`);
+email.parentElement.style.animationPlayState = 'running';
 }
 
 function unarchiv_email(id) {
@@ -185,13 +187,13 @@ fetch(`/emails/${id}`, {
       archived: false
   })
 });
-load_mailbox('archive');
+const email = document.querySelector(`#email${id}`);
+email.parentElement.style.animationPlayState = 'running';
 }
 
 function reply(id) {
   // open compose form
   compose_email();
-
 
   // Get the email
   fetch(`/emails/${id}`)
