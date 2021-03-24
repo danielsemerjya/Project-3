@@ -142,7 +142,8 @@ function display_email(id) {
   box.innerHTML = `
   <div id='sender'><strong>Sender:</strong> ${email.sender}</div>
   <div id='recipients'><strong> Recipients:</strong> ${email.recipients}</div>
-  <div id='recipients'><strong> Timestamp:</strong> ${email.timestamp}</div>
+  <div id='time'><strong> Timestamp:</strong> ${email.timestamp}</div>
+  <button class="btn btn-sm btn-outline-primary" onclick='reply(${email.id})'>Reply</button>
   <hr>
   <div id='body'>${email.body}</div>
   `;
@@ -173,7 +174,7 @@ fetch(`/emails/${id}`, {
   })
   
 });
-
+load_mailbox('inbox');
 }
 
 function unarchiv_email(id) {
@@ -184,5 +185,30 @@ fetch(`/emails/${id}`, {
       archived: false
   })
 });
-alert('dupa');
+load_mailbox('archive');
+}
+
+function reply(id) {
+  // open compose form
+  compose_email();
+
+
+  // Get the email
+  fetch(`/emails/${id}`)
+  .then(response => response.json())
+  .then(email => {
+    // Put right elements to their places
+    document.querySelector('#compose-recipients').value = `${email.sender}`;
+    // Check last email subject
+    if (email.subject.substring(0,3) == 'Re:') {
+      document.querySelector('#compose-subject').value = `${email.subject}`;
+    }
+    else {
+      document.querySelector('#compose-subject').value = `Re: ${email.subject}`;
+    }
+    // fill the body
+    document.querySelector('#compose-body').value = `On ${email.timestamp} ${email.sender} wrote: ${email.body}`;
+
+  });
+
 }
